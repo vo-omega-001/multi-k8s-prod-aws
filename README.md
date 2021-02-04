@@ -1,1 +1,1 @@
-# multi-k8s-prod-aws
+# AWS deployment test with multiple docker conteners using kubernetes
