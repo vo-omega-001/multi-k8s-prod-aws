@@ -1,0 +1,30 @@
+apiVersion: skaffold/v2alpha1
+kind: Config
+build:
+  local:
+    push: false
+  artifacts:
+    - image: voules/multi-client
+      context: ../../complex/client
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        infer:
+        - '***/*.js'
+        - '***/*.css'
+        - '***/*.html'
+    - image: voules/multi-server
+      context: ../../complex/server
+      docker:
+        dockerfile: Dockerfile.dev
+      sync:
+        infer:
+        - '***/*.js'        
+deploy:
+  kubectl:
+    manifests:
+      - ../k8s-dev/app/client-deployment.yaml
+      - ../k8s-dev/app/k8s/client-cluster-ip-service.yaml
+      - ../k8s-dev/app/k8s/server-deployment.yaml
+      - ../k8s-dev/app/k8s/server-cluster-ip-service.yaml
+      - ../k8s-dev/app/k8s/worker-deployment.yaml
