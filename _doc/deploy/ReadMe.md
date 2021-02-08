@@ -42,7 +42,7 @@
 
 # DEPLOY THE COMPLEX APP FROM THE DEPLOYER DOCKER CONTENER SHELL: 
 
-## Create a SSH key for Node access with eksctl (if it is required).
+## Create a SSH key for Node access with eksctl (optional, the CLI is available but is not used here).
   ```
   PASSPHRASE="strong_password"
   EMAIL=deployer_email@domain.com
