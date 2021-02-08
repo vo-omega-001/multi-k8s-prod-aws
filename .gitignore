@@ -1,1 +1,4 @@
-_doc
+_config/aws/tmp
+
+_doc/*.*
+!_doc/deploy/**

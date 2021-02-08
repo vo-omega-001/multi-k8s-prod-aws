@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: database-persistent-volume-claim
+  namespace: multi-k8s
+  #annotations:
+  #  volume.beta.kubernetes.io/storage-class: aws-ebs
+spec:
+  storageClassName: ebs-sc
+  accessModes:
+    - ReadWriteOnce  
+  resources:
+    requests:
+      storage: 2Gi
+      
+---
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-sc
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+
+---
+
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: gp2
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/aws-ebs
+parameters:
+  type: gp2
+  fsType: ext4 
