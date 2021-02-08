@@ -1,8 +1,8 @@
 # DEPLOYMENT TARGET:
-  ```
-  Deployment of the Complex application based on k8s on an AWS EC2 "t2.medium" virtual machine which consumes EKS Service and Block Stores.
+  ```diff
+  @@Deployment of the Complex application based on k8s on an AWS EC2 "t2.medium" virtual machine which consumes EKS Service and Block Stores.
   "t2.medium" instance is not included in the AWS Free Tier.
-  The minimun usable instance type for k8s deployment is the "t2.small" type allowing 11 PODs.
+  The minimun usable instance type for k8s deployment is the "t2.small" type allowing 11 PODs.@@
   ```
 
 
@@ -66,7 +66,7 @@
   CLUSTER_ROLE_ARN=$(aws iam create-role --role-name multi-k8s-eks-cluster-role --assume-role-policy-document file://aws/role-policies/assume-eks-policy.json | jq .Role.Arn | sed s/\"//g)
   echo ${CLUSTER_ROLE_ARN}
   ```
-  #### Atttach Cluster policy.
+  #### Atttach the Cluster policy.
   ```
   aws iam attach-role-policy --role-name multi-k8s-eks-cluster-role --policy-arn  arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
   ```
@@ -178,7 +178,9 @@
 
 
 ## Cleanup all resources on AWS Cloud.
-  ```#f03c15NB: A cleanup is required to not pay more when the app is not required anymore.```
+  ```diff
+  - A cleanup is required to not pay more when the app is not required anymore.
+  ```
 
   #### Delete the node group.
   ```
@@ -192,7 +194,7 @@
   ```
   aws cloudformation delete-stack --stack-name multi-k8s-eks-vpc
   ```
-  #### Detach policies and delete the Node Group role.
+  #### Detach the policies and delete the Node Group role.
   ```
   aws iam detach-role-policy --role-name multi-k8s-eks-nodegroup-role --policy-arn  ${EBS_CSI_POLICY}
   aws iam detach-role-policy --role-name multi-k8s-eks-nodegroup-role --policy-arn  arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
@@ -201,7 +203,7 @@
   aws iam delete-policy --policy-name Amazon_EBS_CSI_Driver
   aws iam delete-role --role-name multi-k8s-eks-nodegroup-role
   ```
-  #### Detach policies and delete the Node Group role.
+  #### Detach the policies and delete the Node Group role.
   ```
   aws iam detach-role-policy --role-name multi-k8s-eks-cluster-role --policy-arn  arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
   aws iam delete-role --role-name multi-k8s-eks-cluster-role

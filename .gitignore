@@ -2,3 +2,4 @@ _config/aws/tmp
 
 _doc/*.*
 !_doc/deploy/**
+.travis.yml
