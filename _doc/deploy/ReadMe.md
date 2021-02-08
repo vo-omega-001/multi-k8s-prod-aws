@@ -1,8 +1,8 @@
 # DEPLOYMENT TARGET:
   ```diff
-  # Deployment of the Complex application based on k8s on an AWS EC2 "t2.medium" virtual machine which consumes EKS Service and Block Stores.
-  "t2.medium" instance is not included in the AWS Free Tier.
-  The minimun usable instance type for k8s deployment is the "t2.small" type allowing 11 PODs.
+  @@ Deployment of the Complex application based on k8s on an AWS EC2 "t2.medium" virtual machine which consumes EKS Service and Block Stores. @@
+  @@ "t2.medium" instance is not included in the AWS Free Tier. @@
+  @@ The minimun usable instance type for k8s deployment is the "t2.small" type allowing 11 PODs. @@
   ```
 
 
