@@ -178,7 +178,7 @@
 
 
 
-# CLEANUP ALL RESOURCES on AWS CLOUD:
+# CLEANUP ALL RESOURCES ON AWS CLOUD:
   ```diff
   - A cleanup is required to not pay more when the app is not required anymore.
   ```
