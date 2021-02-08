@@ -76,7 +76,7 @@
   ```
   EBS_CSI_POLICY=$(aws iam create-policy --policy-name Amazon_EBS_CSI_Driver \--policy-document file://aws/role-policies/assume-volume-policy.json --output text)
   ```
-  #### if it exists.
+  #### Or if it already exists.
   ```
   EBS_CI_POLICY=$(aws iam list-policies --query 'Policies[?PolicyName==`Amazon_EBS_CSI_Driver`].Arn' --output text)
   ```
@@ -165,6 +165,7 @@
   ```
   kubectl create ns multi-k8s
   kubectl create secret generic pgpassword --from-literal PGPASSWORD=azerty -n multi-k8s
+  # The multi-k8s is assigned in the deployment files.
   #kubectl apply -n multi-k8s -f k8s-prod/common
   #kubectl apply -n multi-k8s -f k8s-prod/app
   kubectl apply -f k8s-prod/common
@@ -204,7 +205,7 @@
   aws iam delete-policy --policy-name Amazon_EBS_CSI_Driver
   aws iam delete-role --role-name multi-k8s-eks-nodegroup-role
   ```
-  #### Detach the policies and delete the Node Group role.
+  #### Detach the policiy and delete the Cluster role.
   ```
   aws iam detach-role-policy --role-name multi-k8s-eks-cluster-role --policy-arn  arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
   aws iam delete-role --role-name multi-k8s-eks-cluster-role
