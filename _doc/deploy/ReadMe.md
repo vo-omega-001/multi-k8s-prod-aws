@@ -134,8 +134,8 @@
 
 
 ## Create a Node Group with t2.medium VM (17 possible PODs but is not included in the AWS Free Tier) with 200Go and linked to subnet-01.
-   Get the subnet-01 from aws/tmp/cluster.json file.
-   NB: A single Node in the group initially, but can be increased to 2 Nodes max
+   #### Get the subnet-01 from aws/tmp/cluster.json file.
+   #### NB: A single Node in the group initially, but can be increased to 2 Nodes max
   ```   
   role_arn=${NODEGROUP_ROLE_ARN}
   
