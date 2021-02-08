@@ -1,3 +1,12 @@
+# DEPLOYMENT TARGET:
+  ```
+  Deployment of the Complex application based on k8s on an AWS EC2 "t2.medium" virtual machine which consumes EKS Service and Block Stores.
+  "t2.medium" instance is not included in the AWS Free Tier.
+  The minimun usable instance type for k8s deployment is the "t2.small" type allowing 11 PODs.
+  ```
+
+
+
 # SET ENVIRONMENT VARIABLES:  
   #### Windows
   ```
@@ -33,7 +42,7 @@
 
 # DEPLOY THE COMPLEX APP FROM THE DEPLOYER DOCKER CONTENER SHELL: 
 
-## Create SSH key for Node access with eksctl (if it is required).
+## Create a SSH key for Node access with eksctl (if it is required).
   ```
   PASSPHRASE="strong_password"
   EMAIL=deployer_email@domain.com
@@ -42,14 +51,14 @@
   ```
 
 
-## Configure the aws-cli config and credentials if volume not mounted on AWS_USER_DIR.  
+## Create the aws-cli config and credentials files if a volume is not mounted on AWS_USER_DIR.  
   ###### -> enter aws access key id: ????
   ###### -> enter aws secret access key: ????
   ###### -> enter aws region name: eu-west-3
   ###### -> enter aws default output format: json
   ```
   aws configure
-  ````
+  ```
   
 
 ## Create a role for EKS Cluster management.
@@ -67,7 +76,7 @@
   ```
   EBS_CSI_POLICY=$(aws iam create-policy --policy-name Amazon_EBS_CSI_Driver \--policy-document file://aws/role-policies/assume-volume-policy.json --output text)
   ```
-  #### if it exist.
+  #### if it exists.
   ```
   EBS_CI_POLICY=$(aws iam list-policies --query 'Policies[?PolicyName==`Amazon_EBS_CSI_Driver`].Arn' --output text)
   ```
@@ -78,7 +87,7 @@
   NODEGROUP_ROLE_ARN==$(aws iam create-role --role-name multi-k8s-eks-nodegroup-role --assume-role-policy-document file://aws/role-policies/assume-node-policy.json | jq .Role.Arn | sed s/\"//g)
   echo ${NODEGROUP_ROLE_ARN}
   ```
-  #### Atttach policies for Security, Networking and ImageRegistry.
+  #### Atttach the policies for Security, Networking and ImageRegistry (optional).
   ```
   aws iam attach-role-policy --role-name multi-k8s-eks-nodegroup-role --policy-arn  ${EBS_CSI_POLICY}
   aws iam attach-role-policy --role-name multi-k8s-eks-nodegroup-role --policy-arn  arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
@@ -106,8 +115,9 @@
    --name multi-k8s-eks-cluster \
    --role-arn $role_arn \
    --resources-vpc-config subnetIds=subnet-02bf59abcde0111dc,subnet-028025ceb27ef81ac,securityGroupIds=sg-09a1769915b592229,endpointPublicAccess=true,endpointPrivateAccess=false
-  
-  # Grab the cluster description
+  ```
+  #### Grab the cluster description.
+  ```
   aws eks list-clusters
   aws eks describe-cluster --name multi-k8s-eks-cluster > aws/tmp/cluster.json
   kubectl get clusters
@@ -123,8 +133,9 @@
   ```
 
 
-## Create a Node Group with t2.medium VM (17 possible PODs but not included in AWS Free Tier) with 200Go and linked to subnet-01.  
-   A single Node in the group initially, but can be increased to 2 Nodes max
+## Create a Node Group with t2.medium VM (17 possible PODs but is not included in the AWS Free Tier) with 200Go and linked to subnet-01.
+   Get the subnet-01 from aws/tmp/cluster.json file.
+   NB: A single Node in the group initially, but can be increased to 2 Nodes max
   ```   
   role_arn=${NODEGROUP_ROLE_ARN}
   
@@ -137,7 +148,7 @@
   --scaling-config minSize=1,maxSize=2,desiredSize=1 \
   --instance-types t2.medium
   ```
-  #### Grab the cluster description.
+  #### Grab the node group description.
   ```
   aws eks list-nodegroups --cluster-name multi-k8s-eks-cluster
   aws eks describe-nodegroup --cluster-name multi-k8s-eks-cluster  --nodegroup-name multi-k8s-eks-nodegroup > aws/tmp/node-group.json
@@ -145,13 +156,13 @@
   ```
 
 
-## Create a Contener Strorage Interface Driver.
+## Install a Contener Strorage Interface Driver.
   ```
   kubectl apply -k "github.com/kubernetes-sigs/aws-ebs-csi-driver/deploy/kubernetes/overlays/stable/?ref=master"
   ```
 
-  #### Create a name space and deploy a POD and a ClusterIP service.
-  ````
+  #### Create a name space and deploy the Workload.
+  ```
   kubectl create ns multi-k8s
   kubectl create secret generic pgpassword --from-literal PGPASSWORD=azerty -n multi-k8s
   #kubectl apply -n multi-k8s -f k8s-prod/common
@@ -163,33 +174,35 @@
   kubectl get secrets
   kubectl get vpc
   kubectl get vp
-  ````
+  ```
 
 
-## Cleanup all resources.
+## Cleanup all resources on AWS Cloud.
+  ```#f03c15NB: A cleanup is required to not pay more when the app is not required anymore.```
 
   #### Delete the node group.
-  ````
+  ```
   aws eks delete-nodegroup --cluster-name multi-k8s-eks-cluster --nodegroup-name multi-k8s-eks-nodegroup
-  ````
+  ```
   #### Delete the cluster.
-  ````
+  ```
   aws eks delete-cluster --name multi-k8s-eks-cluster
-  ````
+  ```
   #### Delete the vpc.
-  ````
+  ```
   aws cloudformation delete-stack --stack-name multi-k8s-eks-vpc
-  ````
+  ```
   #### Detach policies and delete the Node Group role.
-  ````
+  ```
   aws iam detach-role-policy --role-name multi-k8s-eks-nodegroup-role --policy-arn  ${EBS_CSI_POLICY}
   aws iam detach-role-policy --role-name multi-k8s-eks-nodegroup-role --policy-arn  arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
   aws iam detach-role-policy --role-name multi-k8s-eks-nodegroup-role --policy-arn  arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
   aws iam detach-role-policy --role-name multi-k8s-eks-nodegroup-role --policy-arn  arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+  aws iam delete-policy --policy-name Amazon_EBS_CSI_Driver
   aws iam delete-role --role-name multi-k8s-eks-nodegroup-role
-  ````
+  ```
   #### Detach policies and delete the Node Group role.
-  ````
+  ```
   aws iam detach-role-policy --role-name multi-k8s-eks-cluster-role --policy-arn  arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
   aws iam delete-role --role-name multi-k8s-eks-cluster-role
   ```
